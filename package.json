@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "api": "node server/index.js",
+    "api": "node server/start.js",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "node server/index.js"
+    "start": "node server/start.js"
   },
   "dependencies": {
     "cheerio": "latest",

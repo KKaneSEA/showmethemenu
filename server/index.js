@@ -485,12 +485,3 @@ app.get("/api/menu-search", async (request, response) => {
 });
 
 export default app;
-
-// Vercel imports this app through api/menu-search.js. Keep the standalone
-// listener only for local development and other non-Vercel hosts.
-if (!process.env.VERCEL) {
-  app.use(express.static("dist"));
-  app.listen(port, () =>
-    console.log(`Menu API listening at http://localhost:${port}`),
-  );
-}

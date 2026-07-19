@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process'
 
-const api = spawn(process.execPath, ['server/index.js'], { stdio: 'inherit' })
+const api = spawn(process.execPath, ['server/start.js'], { stdio: 'inherit' })
 const vite = spawn(process.execPath, ['node_modules/vite/bin/vite.js'], { stdio: 'inherit' })
 let isStopping = false
 
