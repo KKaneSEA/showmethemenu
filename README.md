@@ -81,22 +81,13 @@ Product and engineering decisions made during the collaboration include:
 - Keeping the OpenAI API key exclusively on the server.
 - Using the restaurant's official website as the primary source instead of Google APIs.
 - Showing a live Toast or Square link rather than attempting to reproduce JavaScript-rendered ordering menus.
-- Rejecting hours-only and policy-only text so it is not presented as a menu.
 - Providing source links for every result and opening them in a new tab.
-
-### Submission checklist
-
-- [ ] Add this repository URL to the Devpost submission and include a license.
-- [ ] Include a public YouTube demo under three minutes with audio, showing the app and explaining the Codex/GPT-5.6 collaboration.
-- [ ] Include the `/feedback` Codex Session ID for the project thread.
-- [ ] Confirm the production URL works without credentials exposed in the client.
-- [ ] Review and comply with the terms for OpenAI, Open-Meteo, restaurant websites, Toast, and Square before submission.
 
 ## Project scripts
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the Vite app and local menu API. |
-| `npm run api` | Start only the Express menu API on port 8787. |
-| `npm run build` | Create a production React build in `dist/`. |
-| `npm run start` | Serve the API and existing `dist/` build. |
+| Command         | Purpose                                       |
+| --------------- | --------------------------------------------- |
+| `npm run dev`   | Start the Vite app and local menu API.        |
+| `npm run api`   | Start only the Express menu API on port 8787. |
+| `npm run build` | Create a production React build in `dist/`.   |
+| `npm run start` | Serve the API and existing `dist/` build.     |
