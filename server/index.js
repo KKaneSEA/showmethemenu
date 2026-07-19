@@ -1,10 +1,8 @@
 import "dotenv/config";
 import { load } from "cheerio";
 import express from "express";
-import { PDFParse } from "pdf-parse";
 
 const app = express();
-const port = Number(process.env.PORT || 8787);
 const blockedHostnames = new Set(["localhost", "0.0.0.0", "127.0.0.1", "::1"]);
 const menuLinkPattern =
   /\b(menu|food|dining|dinner|lunch|brunch|breakfast|eat|drink|order|casse-cro[uû]te|carte|le\s+déjeuner|le\s+dejeuner|le\s+dîner|le\s+diner)\b/i;
@@ -167,6 +165,9 @@ async function extractPdfText(url) {
   const file = Buffer.from(await response.arrayBuffer());
   if (file.length === 0 || file.length > 15 * 1024 * 1024) return null;
 
+  // Load PDF parsing only when a PDF is actually found. This keeps the
+  // serverless function's startup path small and compatible with Vercel.
+  const { PDFParse } = await import("pdf-parse");
   const parser = new PDFParse({ data: file });
   try {
     const result = await parser.getText();
