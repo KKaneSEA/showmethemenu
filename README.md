@@ -44,7 +44,14 @@ The extractor currently supports public HTML menu pages. PDF menus, image-only m
 
 ## Deploying to Vercel
 
-Vercel can host the React build, but its static hosting does not run `server/index.js`. Before the menu search can work on the live site, move the `/api/menu-search` handler into a Vercel Serverless Function (for example, `api/menu-search.js`) or host the Express API separately. Add API credentials as encrypted Vercel environment variables; do not expose them through `VITE_` variables.
+The root [`api/menu-search.js`](api/menu-search.js) file exposes the existing Express app as a Vercel Serverless Function, so Vercel serves it at `/api/menu-search` alongside the Vite build.
+
+In Vercel, set the following encrypted environment variables for both Preview and Production, then redeploy:
+
+- `OPENAI_API_KEY`
+- `OPENAI_SEARCH_MODEL` (optional; defaults to `gpt-5.4-mini`)
+
+Use `npm run build` as the build command and `dist` as the output directory. Never expose the API key through a `VITE_` variable.
 
 ## Project scripts
 
