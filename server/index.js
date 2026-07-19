@@ -64,16 +64,72 @@ function extractMenuText(html) {
   return text.length >= 80 ? text : null
 }
 
-async function googleSearch(query) {
-  const key = process.env.GOOGLE_SEARCH_API_KEY
-  const cx = process.env.GOOGLE_SEARCH_ENGINE_ID
-  if (!key || !cx) throw new Error('Google search is not configured. Add GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_ENGINE_ID to .env.')
+function responseOutputText(data) {
+  return (data.output || [])
+    .flatMap((item) => item.content || [])
+    .filter((item) => item.type === 'output_text')
+    .map((item) => item.text)
+    .join('')
+}
 
-  const url = new URL('https://customsearch.googleapis.com/customsearch/v1')
-  url.search = new URLSearchParams({ key, cx, q: query, num: '5', safe: 'active' }).toString()
-  const response = await fetch(url, { signal: AbortSignal.timeout(10_000) })
-  if (!response.ok) throw new Error('Google search could not be completed.')
-  return ((await response.json()).items || []).filter((item) => validExternalUrl(item.link))
+async function openaiResponse(body) {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) throw new Error('OpenAI search is not configured. Add OPENAI_API_KEY to .env.')
+
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(30_000),
+    body: JSON.stringify({ model: process.env.OPENAI_SEARCH_MODEL || 'gpt-5.4-mini', ...body }),
+  })
+  const data = await response.json().catch(() => null)
+  if (!response.ok) throw new Error(data?.error?.message || 'OpenAI request could not be completed.')
+  return data
+}
+
+async function findOfficialWebsite(restaurant, location) {
+  const data = await openaiResponse({
+    tools: [{ type: 'web_search' }],
+    input: `Find the official website for the restaurant named "${restaurant}" in "${location}". Use web search. Do not return directory, review, delivery, social-media, reservation, or map URLs. Return null if you cannot identify the official restaurant website.`,
+    text: {
+      format: {
+        type: 'json_schema', name: 'official_restaurant_website', strict: true,
+        schema: {
+          type: 'object', properties: { officialWebsite: { type: ['string', 'null'] } },
+          required: ['officialWebsite'], additionalProperties: false,
+        },
+      },
+    },
+  })
+
+  try {
+    const officialWebsite = JSON.parse(responseOutputText(data)).officialWebsite
+    return validExternalUrl(officialWebsite) ? officialWebsite : null
+  } catch {
+    throw new Error('OpenAI web search returned an invalid website result.')
+  }
+}
+
+async function normalizeMenuText(pageText, restaurant) {
+  const data = await openaiResponse({
+    input: `You are preparing a restaurant menu for display. The following is visible text fetched from ${restaurant}'s website. Return only actual menu sections, item names, descriptions, and prices. Remove navigation, marketing copy, contact details, legal text, and unrelated content. If this text does not contain an actual menu, return null.\n\nWEBSITE TEXT:\n${pageText}`,
+    text: {
+      format: {
+        type: 'json_schema', name: 'restaurant_menu', strict: true,
+        schema: {
+          type: 'object', properties: { menuText: { type: ['string', 'null'] } },
+          required: ['menuText'], additionalProperties: false,
+        },
+      },
+    },
+  })
+
+  try {
+    const menuText = JSON.parse(responseOutputText(data)).menuText
+    return typeof menuText === 'string' && menuText.trim().length > 20 ? menuText.trim() : null
+  } catch {
+    return null
+  }
 }
 
 app.get('/api/menu-search', async (request, response) => {
@@ -82,7 +138,7 @@ app.get('/api/menu-search', async (request, response) => {
   if (!restaurant || !location) return response.status(400).json({ error: 'Enter both a restaurant and city, state, or country.' })
 
   try {
-    const officialWebsite = (await googleSearch(`${restaurant} ${location} official restaurant website`))[0]?.link
+    const officialWebsite = await findOfficialWebsite(restaurant, location)
     if (!officialWebsite) throw new Error('No restaurant website was found.')
     const homePage = await fetchPage(officialWebsite)
     let menuUrl = null
@@ -91,7 +147,9 @@ app.get('/api/menu-search', async (request, response) => {
     for (const candidate of menuCandidates(homePage.url, homePage.html)) {
       try {
         const page = candidate === homePage.url ? homePage : await fetchPage(candidate)
-        const text = extractMenuText(page.html)
+        const pageText = extractMenuText(page.html)
+        if (!pageText) continue
+        const text = await normalizeMenuText(pageText, restaurant)
         if (text) { menuUrl = page.url; menuText = text; break }
       } catch { /* Try the next menu page. */ }
     }

@@ -222,6 +222,16 @@ button:disabled {
   text-transform: uppercase;
 }
 
+.result-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 3rem);
+}
+
+.map-photo-column {
+  min-height: 10rem;
+}
+
 .menu-result a {
   display: inline-block;
   margin-top: 0.8rem;
@@ -268,6 +278,12 @@ button:disabled {
   }
   form button {
     grid-column: span 2;
+  }
+  .result-columns {
+    grid-template-columns: 1fr;
+  }
+  .map-photo-column {
+    display: none;
   }
 }
 

@@ -163,15 +163,19 @@ function App() {
         <section className="menu-result" aria-live="polite">
           {searchError && <p className="search-error">{searchError}</p>}
           {searchResult && (
-            <>
-              <h2>{searchResult.restaurant}</h2>
-              <a href={searchResult.menuUrl || searchResult.officialWebsite} target="_blank" rel="noreferrer">
-                {searchResult.menuUrl ? 'Open menu ↗' : 'Open restaurant website ↗'}
-              </a>
-              {searchResult.menuText ? (
-                <p className="menu-text">{searchResult.menuText}</p>
-              ) : <p>{searchResult.message}</p>}
-            </>
+            <div className="result-columns">
+              <article className="menu-column">
+                <h2>{searchResult.restaurant}</h2>
+                <a href={searchResult.menuUrl || searchResult.officialWebsite} target="_blank" rel="noreferrer">
+                  {searchResult.menuUrl ? 'Open menu ↗' : 'Open restaurant website ↗'}
+                </a>
+                {searchResult.menuText ? (
+                  <p className="menu-text">{searchResult.menuText}</p>
+                ) : <p>{searchResult.message}</p>}
+              </article>
+              <article className="map-photo-column" aria-label="Google Maps photo one" />
+              <article className="map-photo-column" aria-label="Google Maps photo two" />
+            </div>
           )}
         </section>
       )}
