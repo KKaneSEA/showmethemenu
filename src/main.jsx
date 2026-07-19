@@ -93,7 +93,7 @@ function EyesTrail() {
 function ExternalLinkIcon() {
   return (
     <svg className="external-link-icon" viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M9 1h6v6M15 1 7 9M13 9v5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5" />
+      <path d="M3 13 13 3M7 3h6v6" />
     </svg>
   );
 }
