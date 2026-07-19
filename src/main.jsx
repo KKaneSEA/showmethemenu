@@ -30,7 +30,7 @@ function EyesTrail() {
 
     const addEyes = (event) => {
       const now = performance.now();
-      if (now - lastSpawnRef.current < 70) return;
+      if (now - lastSpawnRef.current < 99) return;
       lastSpawnRef.current = now;
 
       for (let index = 0; index < 1; index += 1) {
@@ -41,7 +41,7 @@ function EyesTrail() {
           vy: Math.random() * 0.35 + 0.15,
           size: Math.random() * 12 + 17,
           opacity: 0.8,
-          decay: 0.018,
+          decay: 0.017,
         });
       }
     };
@@ -366,7 +366,7 @@ function App() {
                     </>
                   ) : (
                     <>
-                      <p>{searchResult.message}</p>
+                      {searchResult.message && <p>{searchResult.message}</p>}
                       {searchResult.squareMenuUrl && (
                         <a
                           href={searchResult.squareMenuUrl}

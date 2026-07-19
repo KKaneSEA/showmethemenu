@@ -94,9 +94,13 @@ function pdfMenuCandidates(pageUrl, html) {
   const $ = load(html);
   const links = new Set();
 
-  $("a[href]").each((_, element) => {
+  $("a[href], iframe[src], embed[src], object[data]").each((_, element) => {
     try {
-      const url = new URL($(element).attr("href"), pageUrl);
+      const source =
+        $(element).attr("href") ||
+        $(element).attr("src") ||
+        $(element).attr("data");
+      const url = new URL(source, pageUrl);
       if (
         validExternalUrl(url.toString()) &&
         url.pathname.toLowerCase().endsWith(".pdf")
@@ -303,8 +307,16 @@ function isActualMenu(sections) {
   const titles = sections
     .map((section) => section.title.trim())
     .filter(Boolean);
+  const items = sections.flatMap((section) => section.items || []);
+  const itemText = items
+    .map((item) => `${item.name} ${item.price} ${item.description}`)
+    .join(" ");
 
-  return titles.length > 0 && !titles.every((title) => /\b(hours?|schedule)\b/i.test(title));
+  return (
+    titles.length > 0 &&
+    !titles.every((title) => /\b(hours?|schedule)\b/i.test(title)) &&
+    !(items.length <= 2 && /\b(corkage|privacy|cookie|terms)\b/i.test(itemText))
+  );
 }
 
 async function findMenuPage(restaurant, officialWebsite, candidateUrls) {
@@ -353,6 +365,22 @@ app.get("/api/menu-search", async (request, response) => {
     let menuSections = null;
     const squareUrl = squareMenuUrl(homePage.url, homePage.html);
     let toastUrl = toastMenuUrl(homePage.url, homePage.html);
+
+    // Toast is the restaurant's live ordering menu. Prefer it over short menu
+    // teasers or business details copied onto the restaurant's own website.
+    if (toastUrl) {
+      return response.json({
+        restaurant,
+        officialWebsite: homePage.url,
+        menuUrl: null,
+        menuSections: null,
+        squareMenuUrl: squareUrl,
+        toastMenuUrl: toastUrl,
+        otherMenus: [],
+        message: "Toast menu found for this restaurant.",
+      });
+    }
+
     const pdfCandidates = new Set();
     const discoveredMenuLinks = menuLinks(homePage.url, homePage.html);
     const candidates = menuCandidates(homePage.url, homePage.html);
@@ -383,9 +411,21 @@ app.get("/api/menu-search", async (request, response) => {
         const page =
           candidate === homePage.url ? homePage : await fetchPage(candidate);
         toastUrl ||= toastMenuUrl(page.url, page.html);
-        pdfMenuCandidates(page.url, page.html).forEach((url) =>
+        const pagePdfCandidates = pdfMenuCandidates(page.url, page.html);
+        pagePdfCandidates.forEach((url) =>
           pdfCandidates.add(url),
         );
+        for (const pdfUrl of pagePdfCandidates) {
+          const pdfText = await extractPdfText(pdfUrl);
+          if (!pdfText) continue;
+          const sections = await normalizeMenuText(pdfText, restaurant);
+          if (sections && isActualMenu(sections)) {
+            menuUrl = pdfUrl;
+            menuSections = sections;
+            break;
+          }
+        }
+        if (menuSections) break;
         const pageText = extractMenuText(page.html);
         if (!pageText) continue;
         const sections = await normalizeMenuText(pageText, restaurant);
