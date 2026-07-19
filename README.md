@@ -1,6 +1,18 @@
 # Show Me the Menu
 
-[Show Me the Menu](https://showmethemenu.vercel.app/) finds a restaurant's official website, looks for a menu page, and presents the readable menu text with a link to the source menu.
+[Show Me the Menu](https://showmethemenu.vercel.app/) is a consumer web app that helps diners quickly locate a restaurant's actual menu. Enter a restaurant name and location; the app finds its official site, identifies a readable menu, and presents the menu text with direct links to the source.
+
+Built for the **Apps for Your Life** track of OpenAI Build Week.
+
+## What it does
+
+- Worldwide city, state, and country suggestions powered by Open-Meteo geocoding.
+- Server-side OpenAI web search finds a restaurant's official website.
+- Searches the restaurant site for menu pages, including Dinner, Food, Le Déjeuner, and Le Dîner pages.
+- Extracts readable HTML menus and linked/embedded PDF menus into structured sections, dishes, prices, and descriptions.
+- Prioritizes live Toast Tab menus and provides direct links to Toast and Square menus when they are found.
+- Offers links to other menu types when a restaurant site provides more than one menu.
+- Keeps API credentials server-side; the browser never receives the OpenAI key.
 
 ## Local development
 
@@ -10,7 +22,13 @@
    npm install
    ```
 
-2. Copy `.env.example` to `.env` and add the required search credentials.
+2. Copy `.env.example` to `.env` and add the required search credentials:
+
+   ```bash
+   OPENAI_API_KEY=your_key_here
+   # Optional; defaults to gpt-5.4-mini
+   OPENAI_SEARCH_MODEL=gpt-5.4-mini
+   ```
 
 3. Start the app:
 
@@ -30,9 +48,10 @@
 
 1. The user enters a restaurant and a city, state, or country.
 2. The app uses Open-Meteo's geocoding endpoint to suggest locations.
-3. The server searches for the restaurant's official website.
-4. The server checks that site for menu-related pages, extracts visible text from a readable HTML menu, and returns the menu URL and text.
-5. Menu links open in a new browser tab.
+3. The server uses OpenAI Responses API web search to locate the restaurant's official website.
+4. The server checks menu-related pages and linked or embedded PDFs.
+5. It returns structured menu content when a readable menu is available. Toast Tab is treated as the source of truth for a live Toast menu; Square and Toast links open in a new tab.
+6. When a site offers multiple menu types, the result includes links to the alternatives.
 
 ## API restrictions
 
@@ -40,7 +59,7 @@ The hosted site, [showmethemenu.vercel.app](https://showmethemenu.vercel.app/), 
 
 The current search adapter expects `OPENAI_API_KEY` in `.env` and uses the OpenAI Responses API web-search tool to identify the restaurant's official website. Never put the key in the React client or commit `.env`. Web-search calls are billed by OpenAI.
 
-The extractor currently supports public HTML menu pages. PDF menus, image-only menus, JavaScript-rendered menus, blocked sites, and sites with bot protection may not return readable text.
+The extractor supports public HTML pages and linked or embedded PDFs. Image-only menus, JavaScript-rendered menus, blocked sites, and sites with bot protection may not return readable text. Menu content is always linked back to its source so diners can verify the current offering.
 
 ## Deploying to Vercel
 
@@ -52,6 +71,26 @@ In Vercel, set the following encrypted environment variables for both Preview an
 - `OPENAI_SEARCH_MODEL` (optional; defaults to `gpt-5.4-mini`)
 
 Use `npm run build` as the build command and `dist` as the output directory. Never expose the API key through a `VITE_` variable.
+
+## Build Week: Codex collaboration
+
+This project was developed collaboratively in Codex with GPT-5.6. Codex accelerated the implementation of the React interface, responsive layout, the desktop eyes-trail interaction, the OpenAI-powered menu discovery flow, PDF extraction, Toast/Square fallbacks, and the Vercel serverless deployment path.
+
+Product and engineering decisions made during the collaboration include:
+
+- Keeping the OpenAI API key exclusively on the server.
+- Using the restaurant's official website as the primary source instead of Google APIs.
+- Showing a live Toast or Square link rather than attempting to reproduce JavaScript-rendered ordering menus.
+- Rejecting hours-only and policy-only text so it is not presented as a menu.
+- Providing source links for every result and opening them in a new tab.
+
+### Submission checklist
+
+- [ ] Add this repository URL to the Devpost submission and include a license.
+- [ ] Include a public YouTube demo under three minutes with audio, showing the app and explaining the Codex/GPT-5.6 collaboration.
+- [ ] Include the `/feedback` Codex Session ID for the project thread.
+- [ ] Confirm the production URL works without credentials exposed in the client.
+- [ ] Review and comply with the terms for OpenAI, Open-Meteo, restaurant websites, Toast, and Square before submission.
 
 ## Project scripts
 

@@ -90,6 +90,14 @@ function EyesTrail() {
   return <canvas ref={canvasRef} className="eyes-trail" aria-hidden="true" />;
 }
 
+function ExternalLinkIcon() {
+  return (
+    <svg className="external-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M9 1h6v6M15 1 7 9M13 9v5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5" />
+    </svg>
+  );
+}
+
 function App() {
   const [restaurant, setRestaurant] = useState("");
   const [location, setLocation] = useState("");
@@ -315,7 +323,7 @@ function App() {
                             target="_blank"
                             rel="noreferrer"
                           >
-                            Open Toast menu ↗
+                            Open Toast menu <ExternalLinkIcon />
                           </a>
                         )}
                       <a
@@ -323,7 +331,7 @@ function App() {
                         target="_blank"
                         rel="noreferrer"
                       >
-                        Open menu ↗
+                        Open menu <ExternalLinkIcon />
                       </a>
                       <div className="menu-sections">
                         {searchResult.menuSections.map((section) => (
@@ -358,7 +366,7 @@ function App() {
                               target="_blank"
                               rel="noreferrer"
                             >
-                              {menu.label} ↗
+                              {menu.label} <ExternalLinkIcon />
                             </a>
                           ))}
                         </nav>
@@ -373,7 +381,7 @@ function App() {
                           target="_blank"
                           rel="noreferrer"
                         >
-                          Open Square menu ↗
+                          Open Square menu <ExternalLinkIcon />
                         </a>
                       )}
                       {searchResult.toastMenuUrl && (
@@ -382,7 +390,7 @@ function App() {
                           target="_blank"
                           rel="noreferrer"
                         >
-                          Open Toast menu ↗
+                          Open Toast menu <ExternalLinkIcon />
                         </a>
                       )}
                       <a
@@ -391,7 +399,7 @@ function App() {
                         target="_blank"
                         rel="noreferrer"
                       >
-                        Open restaurant website ↗
+                        Open restaurant website <ExternalLinkIcon />
                       </a>
                     </>
                   )}
