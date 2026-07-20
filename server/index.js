@@ -26,7 +26,7 @@ async function fetchPage(url) {
   const response = await fetch(url, {
     headers: { "User-Agent": "ShowMeTheMenu/1.0 (+menu discovery)" },
     redirect: "manual",
-    signal: AbortSignal.timeout(10_000),
+    signal: AbortSignal.timeout(15_000),
   });
 
   if ([301, 302, 303, 307, 308].includes(response.status)) {
@@ -158,7 +158,7 @@ async function extractPdfText(url) {
   if (!validExternalUrl(url)) return null;
   const response = await fetch(url, {
     headers: { "User-Agent": "ShowMeTheMenu/1.0 (+menu discovery)" },
-    signal: AbortSignal.timeout(20_000),
+    signal: AbortSignal.timeout(30_000),
   });
   if (!response.ok) return null;
 
