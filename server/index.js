@@ -26,7 +26,7 @@ async function fetchPage(url) {
   const response = await fetch(url, {
     headers: { "User-Agent": "ShowMeTheMenu/1.0 (+menu discovery)" },
     redirect: "manual",
-    signal: AbortSignal.timeout(15_000),
+    signal: AbortSignal.timeout(10_000),
   });
 
   if ([301, 302, 303, 307, 308].includes(response.status)) {
@@ -86,6 +86,21 @@ function menuCandidates(pageUrl, html) {
     0,
     10,
   );
+}
+
+function menuPagePriority(url) {
+  const path = new URL(url).pathname.toLowerCase();
+  if (/dinner|diner|déjeuner|dejeuner/.test(path)) return 0;
+  if (/menu|food|eat/.test(path)) return 1;
+  if (/lunch|brunch|breakfast/.test(path)) return 2;
+  if (/drink|cocktail|wine|bar/.test(path)) return 10;
+  return 5;
+}
+
+function isBeverageMenuUrl(url) {
+  if (!url) return false;
+  const path = new URL(url).pathname.toLowerCase();
+  return /drink|cocktail|wine|bar|beverage/.test(path);
 }
 
 function pdfMenuCandidates(pageUrl, html) {
@@ -158,7 +173,7 @@ async function extractPdfText(url) {
   if (!validExternalUrl(url)) return null;
   const response = await fetch(url, {
     headers: { "User-Agent": "ShowMeTheMenu/1.0 (+menu discovery)" },
-    signal: AbortSignal.timeout(30_000),
+    signal: AbortSignal.timeout(20_000),
   });
   if (!response.ok) return null;
 
@@ -179,9 +194,18 @@ async function extractPdfText(url) {
 
 function extractMenuText(html) {
   const $ = load(html);
-  const menuSection = $('[id*="menu" i], [class*="menu" i], [data-menu]')
+  // Prefer a deliberate menu anchor before generic class names. Many sites use
+  // classes such as "main-menu" for their navigation, which is not menu content.
+  const exactMenuSection = $("#menu, [data-menu]")
     .filter((_, element) => $(element).text().trim().length > 80)
     .first();
+  const genericMenuSections = $('[id*="menu" i], [class*="menu" i]')
+    .filter((_, element) => $(element).text().trim().length > 80)
+    .toArray()
+    .sort((first, second) => $(second).text().length - $(first).text().length);
+  const menuSection = exactMenuSection.length
+    ? exactMenuSection
+    : $(genericMenuSections[0]);
   const text = visibleText($, menuSection.length ? menuSection : "main, body");
   return text.length >= 80 ? text : null;
 }
@@ -252,7 +276,7 @@ async function findOfficialWebsite(restaurant, location) {
 
 async function normalizeMenuText(pageText, restaurant) {
   const data = await openaiResponse({
-    input: `You are preparing a restaurant menu for display. The following is visible text fetched from ${restaurant}'s website. Organize it into menu sections and items. Preserve every item name, price, option, and description exactly where possible. Keep variant pricing (such as Chicken 15; Prawns 18) together in the price field. Remove navigation, marketing copy, contact details, legal text, and unrelated content. Business hours, opening times, and schedules are never a menu. If this text does not contain an actual menu, return an empty sections array.\n\nWEBSITE TEXT:\n${pageText}`,
+    input: `You are preparing a restaurant FOOD menu for display. The following is visible text fetched from ${restaurant}'s website. Organize its food into menu sections and items. Preserve every item name, price, option, and description exactly where possible. Keep variant pricing (such as Chicken 15; Prawns 18) together in the price field. If this page contains both food and beverages, return the food sections only: exclude wine, cocktails, beer, coffee, and other beverage-only sections. Remove navigation, marketing copy, contact details, legal text, and unrelated content. Business hours, opening times, and schedules are never a menu. If this text does not contain an actual food menu, return an empty sections array.\n\nWEBSITE TEXT:\n${pageText}`,
     text: {
       format: {
         type: "json_schema",
@@ -392,18 +416,26 @@ app.get("/api/menu-search", async (request, response) => {
     );
     // A homepage often has a short menu teaser. Check dedicated menu pages before it,
     // so a teaser cannot be mistaken for the restaurant's full menu.
-    const dedicatedCandidates = candidates.filter(
-      (url) => url !== homePage.url,
+    const dedicatedCandidates = candidates
+      .filter((url) => url !== homePage.url)
+      .sort((first, second) => menuPagePriority(first) - menuPagePriority(second));
+    const foodCandidates = dedicatedCandidates.filter(
+      (url) => !isBeverageMenuUrl(url),
     );
+    const beverageCandidates = dedicatedCandidates.filter(isBeverageMenuUrl);
     const preferredMenuUrl =
       selectedMenuUrl && selectedMenuUrl !== homePage.url
         ? selectedMenuUrl
         : null;
     const pagesToCheck = [
       ...new Set(
-        [preferredMenuUrl, ...dedicatedCandidates, homePage.url].filter(
-          Boolean,
-        ),
+        [
+          ...foodCandidates,
+          !isBeverageMenuUrl(preferredMenuUrl || "") && preferredMenuUrl,
+          homePage.url,
+          ...beverageCandidates,
+          isBeverageMenuUrl(preferredMenuUrl || "") && preferredMenuUrl,
+        ].filter(Boolean),
       ),
     ];
 
