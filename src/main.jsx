@@ -187,11 +187,14 @@ function App() {
     <>
       <EyesTrail />
       <main className="poster">
-        <section className="hero" aria-labelledby="page-title">
+        <section className="hero cake-hero" aria-label="Show Me the Menu">
+          <img className="cake-title" src="/cake.png" alt="Show Me the Menu cake" />
+          {/*
           <h1 id="page-title">
             <span>show Me</span>
             <span>the menu!</span>
           </h1>
+          */}
 
           <div className="search-area">
             <p>I want to see the menu for…</p>
@@ -222,12 +225,12 @@ function App() {
               </div>
               <div className="location-picker">
                 <label className="sr-only" htmlFor="location">
-                  City, state, or country
+                  Location
                 </label>
                 <input
                   id="location"
                   name="location"
-                  placeholder="City/state"
+                  placeholder="Location"
                   value={location}
                   onChange={(event) => {
                     setLocation(event.target.value);

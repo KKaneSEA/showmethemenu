@@ -1,7 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:opsz,wght@9..40,700;9..40,800&display=swap");
 
 :root {
-  color: #000;
+  --ink: #5f1914;
+  color: var(--ink);
   background: sandybrown;
   font-family: "DM Sans", Arial, sans-serif;
   font-synthesis: none;
@@ -63,6 +64,17 @@ h1 span:last-child {
   margin-left: -0.02em;
 }
 
+.cake-title {
+  display: block;
+  width: clamp(15rem, 31vw, 28rem);
+  height: auto;
+  margin: 0 auto;
+}
+
+.cake-hero .search-area {
+  margin-top: clamp(1.5rem, 3vw, 3rem);
+}
+
 .search-area {
   max-width: 1120px;
   margin-top: clamp(3.4rem, 7vw, 6.5rem);
@@ -72,7 +84,7 @@ h1 span:last-child {
 }
 
 .search-area > p {
-  color: #000;
+  color: crimson;
   font-size: clamp(1.85rem, 4.8vw, 4rem);
   font-weight: 700;
   letter-spacing: -0.09rem;
@@ -91,7 +103,7 @@ input,
 button {
   min-width: 0;
   min-height: clamp(4.4rem, 9vw, 7.15rem);
-  border: 6px solid #000;
+  border: 6px solid var(--ink);
   border-radius: 10px;
   font-size: clamp(0.5rem, 2.5vw, 3.45rem);
   font-weight: 700;
@@ -111,26 +123,26 @@ button {
 }
 
 input {
-  color: #000;
+  color: crimson;
   outline: none;
   background: rgba(255, 255, 255, 0.08);
 }
 
 input::placeholder {
-  color: #000;
+  color: crimson;
   opacity: 1;
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #000;
+  -webkit-text-fill-color: crimson;
   box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset;
-  caret-color: #000;
+  caret-color: crimson;
 }
 
 input:focus-visible {
-  outline: 4px solid #000;
+  outline: 4px solid var(--ink);
   outline-offset: 3px;
 }
 
@@ -146,7 +158,7 @@ input:focus-visible {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  color: #000;
+  color: crimson;
   background: rgba(255, 255, 255, 0.45);
   font-size: clamp(1.4rem, 3.3vw, 2.5rem);
   font-weight: 700;
@@ -171,10 +183,10 @@ input:focus-visible {
   margin: 0;
   overflow-y: auto;
   list-style: none;
-  border: 4px solid #000;
+  border: 4px solid var(--ink);
   border-radius: 8px;
   background: sandybrown;
-  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.22);
+  box-shadow: 6px 6px 0 rgba(95, 25, 20, 0.22);
 }
 
 .location-options button {
@@ -184,7 +196,7 @@ input:focus-visible {
   padding: 0.55rem 0.7rem;
   border: 0;
   border-radius: 3px;
-  color: #000;
+  color: var(--ink);
   background: transparent;
   font-size: clamp(0.85rem, 1.6vw, 1rem);
   font-weight: 700;
@@ -195,7 +207,7 @@ input:focus-visible {
 
 .location-options button:hover,
 .location-options button:focus-visible {
-  color: #000;
+  color: var(--ink);
   background: #f6d28b;
   transform: none;
   outline: 0;
@@ -209,11 +221,20 @@ input:focus-visible {
 button {
   padding: 0 0.45em;
   cursor: pointer;
-  color: #000;
+  color: var(--ink);
   background: transparent;
   transition:
     transform 140ms ease,
     background 140ms ease;
+}
+
+form input,
+form > button {
+  border-color: #fad0bf;
+}
+
+form > button {
+  color: crimson;
 }
 
 button:hover {
@@ -221,7 +242,7 @@ button:hover {
   transform: translateY(-2px);
 }
 button:focus-visible {
-  outline: 4px solid #000;
+  outline: 4px solid var(--ink);
   outline-offset: 3px;
 }
 button:disabled {
@@ -238,7 +259,7 @@ form > button:disabled {
   max-width: 1120px;
   margin: 0 auto;
   padding-top: 1.5rem;
-  border-top: 5px solid #000;
+  border-top: 5px solid var(--ink);
 }
 
 .menu-result h2 {
@@ -246,6 +267,7 @@ form > button:disabled {
   font-family: "Archivo Black", Impact, sans-serif;
   font-size: clamp(1.8rem, 4.5vw, 4rem);
   letter-spacing: -0.06em;
+  color: crimson;
   text-transform: uppercase;
 }
 
@@ -262,7 +284,7 @@ form > button:disabled {
 .menu-result a {
   display: inline-block;
   margin-top: 0.8rem;
-  color: #000;
+  color: crimson;
   font-weight: 700;
   text-underline-offset: 0.18em;
 }
@@ -287,7 +309,7 @@ form > button:disabled {
 .other-menus {
   margin-top: 1.75rem;
   padding-top: 1rem;
-  border-top: 3px solid #000;
+  border-top: 3px solid var(--ink);
 }
 
 .other-menus p {
