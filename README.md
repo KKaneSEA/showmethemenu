@@ -61,17 +61,6 @@ The current search adapter expects `OPENAI_API_KEY` in `.env` and uses the OpenA
 
 The extractor supports public HTML pages and linked or embedded PDFs. Image-only menus, JavaScript-rendered menus, blocked sites, and sites with bot protection may not return readable text. Menu content is always linked back to its source so diners can verify the current offering.
 
-## Deploying to Vercel
-
-The root [`api/menu-search.js`](api/menu-search.js) file exposes the existing Express app as a Vercel Serverless Function, so Vercel serves it at `/api/menu-search` alongside the Vite build.
-
-In Vercel, set the following encrypted environment variables for both Preview and Production, then redeploy:
-
-- `OPENAI_API_KEY`
-- `OPENAI_SEARCH_MODEL` (optional; defaults to `gpt-5.4-mini`)
-
-Use `npm run build` as the build command and `dist` as the output directory. Never expose the API key through a `VITE_` variable.
-
 ## Build Week: Codex collaboration
 
 This project was developed collaboratively in Codex with GPT-5.6. Codex accelerated the implementation of the React interface, responsive layout, the desktop eyes-trail interaction, the OpenAI-powered menu discovery flow, PDF extraction, Toast/Square fallbacks, and the Vercel serverless deployment path.

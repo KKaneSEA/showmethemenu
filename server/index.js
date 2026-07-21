@@ -418,7 +418,9 @@ app.get("/api/menu-search", async (request, response) => {
     // so a teaser cannot be mistaken for the restaurant's full menu.
     const dedicatedCandidates = candidates
       .filter((url) => url !== homePage.url)
-      .sort((first, second) => menuPagePriority(first) - menuPagePriority(second));
+      .sort(
+        (first, second) => menuPagePriority(first) - menuPagePriority(second),
+      );
     const foodCandidates = dedicatedCandidates.filter(
       (url) => !isBeverageMenuUrl(url),
     );
@@ -445,9 +447,7 @@ app.get("/api/menu-search", async (request, response) => {
           candidate === homePage.url ? homePage : await fetchPage(candidate);
         toastUrl ||= toastMenuUrl(page.url, page.html);
         const pagePdfCandidates = pdfMenuCandidates(page.url, page.html);
-        pagePdfCandidates.forEach((url) =>
-          pdfCandidates.add(url),
-        );
+        pagePdfCandidates.forEach((url) => pdfCandidates.add(url));
         for (const pdfUrl of pagePdfCandidates) {
           const pdfText = await extractPdfText(pdfUrl);
           if (!pdfText) continue;
@@ -499,7 +499,9 @@ app.get("/api/menu-search", async (request, response) => {
       otherMenus:
         menuSections && discoveredMenuLinks.length > 1
           ? discoveredMenuLinks
-              .filter((link) => link.url !== menuUrl && link.url !== homePage.url)
+              .filter(
+                (link) => link.url !== menuUrl && link.url !== homePage.url,
+              )
               .slice(0, 5)
           : [],
       message: menuSections
